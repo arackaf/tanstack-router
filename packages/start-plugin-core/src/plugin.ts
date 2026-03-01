@@ -345,24 +345,13 @@ export function TanStackStartVitePluginCore(
                   await builder.build(providerEnv)
                 }
               }
+
+              // Run Start's post-build tasks (prerender/sitemap) right after
+              // Start environments are built, before adapter packaging steps.
+              await postServerBuild({ builder, startConfig })
             },
           },
         }
-      },
-    },
-    // Separate plugin for buildApp hook with enforce: 'post'
-    // This ensures proper ordering with other plugins that also have
-    // buildApp hooks with order: 'post'. The enforce: 'post' ensures this
-    // runs after other plugins (like Nitro) complete their builds.
-    {
-      name: 'tanstack-start-core:post-build',
-      enforce: 'post',
-      buildApp: {
-        order: 'post',
-        async handler(builder) {
-          const { startConfig } = getConfig()
-          await postServerBuild({ builder, startConfig })
-        },
       },
     },
     // Server function plugin handles:
